@@ -7,9 +7,8 @@ import {
     validate,
 } from 'class-validator';
 import { DamageType } from '../models/damageType';
-import { Response } from 'express';
 
-export class BaseRequestBody {
+export class HpModifyInfo {
     @IsString()
     @IsNotEmpty()
     playerName!: string;
@@ -20,22 +19,17 @@ export class BaseRequestBody {
     amount!: number;
 }
 
-export class DamageRequestBody extends BaseRequestBody {
+export class DamageInfo extends HpModifyInfo {
     @IsString()
     @IsEnum(DamageType)
     @IsNotEmpty()
     damageType!: DamageType;
 }
 
-export const validateRequest = async (res: Response, info: BaseRequestBody) => {
+export const validateRequest = async (info: HpModifyInfo) => {
     const errors = await validate(info);
     if (errors.length > 0) {
         console.error('validation failed. errors: ', errors);
-        res.status(400).json({
-            message: 'Invalid request body.',
-            Errors: errors,
-        });
-        return false;
+        return errors;
     }
-    return true;
 };

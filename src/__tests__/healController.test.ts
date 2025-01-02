@@ -35,7 +35,7 @@ describe('healPlayer', () => {
             amount: 5,
         });
         expect(response.status).toBe(404);
-        expect(response.body.message).toBe('Player not found');
+        expect(response.text).toBe('Player not found');
     });
 
     it('should return 400 for invalid heal amount', async () => {
@@ -56,12 +56,10 @@ describe('healPlayer', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app)
-            .post('/heal')
-            .send({
-                playerName: 'Briv',
-                amount: 5,
-            });
+        const response = await request(app).post('/heal').send({
+            playerName: 'Briv',
+            amount: 5,
+        });
         expect(response.status).toBe(200);
         expect(response.body.currentHp).toBe(20); // currentHp should not exceed hitPoints
         expect(mockPlayer.save).toHaveBeenCalled();
@@ -76,12 +74,10 @@ describe('healPlayer', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app)
-            .post('/heal')
-            .send({
-                playerName: 'Briv',
-                amount: 5,
-            });
+        const response = await request(app).post('/heal').send({
+            playerName: 'Briv',
+            amount: 5,
+        });
         expect(response.status).toBe(200);
         expect(response.body.currentHp).toBe(15);
         expect(mockPlayer.tempHp).toBe(5); // tempHp should remain unchanged

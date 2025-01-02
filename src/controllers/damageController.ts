@@ -1,11 +1,13 @@
-import { Request, Response } from 'express';
-import Player, { IPlayer } from '../models/player';
-import { DamageType } from '../models/damageType';
-import { DamageRequestBody, validateRequest } from '../shared/validator';
+import { NextFunction, Request, Response } from 'express';
+import { DamageInfo, validateRequest } from '../shared/validator';
+import { PlayerNotFoundError } from '../shared/playerNotFoundError';
+import { PlayerHpService } from '../services/playerHpService';
+
+const playerHpService = PlayerHpService.getInstance();
 
 /**
  * @swagger
- * /damage:
+ * /dealDamage:
  *   post:
  *     summary: Deal damage to the player
  *     tags: [Damage]
@@ -51,51 +53,32 @@ import { DamageRequestBody, validateRequest } from '../shared/validator';
  *       404:
  *         description: Player not found
  */
-export const dealDamage = async (req: Request, res: Response) => {
-    const damageInfo = new DamageRequestBody();
+export const dealDamage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const damageInfo = new DamageInfo();
     damageInfo.playerName = req.body.playerName;
     damageInfo.amount = req.body.amount;
     damageInfo.damageType = req.body.damageType;
-    if (!(await validateRequest(res, damageInfo))) {
+    const errors = await validateRequest(damageInfo);
+    if (errors) {
+        res.status(400).json({
+            message: 'Invalid request body.',
+            Errors: errors,
+        });
         return;
     }
 
-    const player = await Player.findOne({ name: damageInfo.playerName });
-    if (player) {
-        const totalHpToReduce = CalculateHpToReduce(
-            player,
-            damageInfo.damageType,
-            damageInfo.amount
-        );
-        const tempHpToReduce = Math.min(player.tempHp, totalHpToReduce);
-        const currentHpToReduce = Math.min(
-            player.currentHp,
-            totalHpToReduce - tempHpToReduce
-        );
-        player.tempHp -= tempHpToReduce;
-        player.currentHp -= currentHpToReduce;
-        await player.save();
-        res.status(200).json({
-            currentHp: player.currentHp,
-            tempHp: player.tempHp,
-        });
-    } else {
-        res.status(404).send('Player not found');
+    try {
+        const result = await playerHpService.dealDamage(damageInfo);
+        res.status(200).json(result);
+    } catch (error) {
+        if (error instanceof PlayerNotFoundError) {
+            res.status(404).send(error.message);
+            return;
+        }
+        next(error);
     }
 };
-
-function CalculateHpToReduce(
-    player: IPlayer,
-    damageType: DamageType,
-    amount: number
-): number {
-    const foundDefense = player.defenses?.find(
-        (defense) => defense.type === damageType
-    );
-    if (foundDefense) {
-        if (foundDefense.defense === 'resistance')
-            return Math.floor(amount / 2);
-        if (foundDefense.defense === 'immunity') return 0;
-    }
-    return amount;
-}

@@ -5,7 +5,7 @@ import Player from '../models/player';
 
 const app = express();
 app.use(express.json());
-app.post('/tempHp', addTempHp);
+app.post('/addTempHp', addTempHp);
 
 jest.mock('../models/player');
 
@@ -19,12 +19,10 @@ describe('addTempHp', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app)
-            .post('/tempHp')
-            .send({
-                playerName: 'Briv',
-                amount: 5,
-            });
+        const response = await request(app).post('/addTempHp').send({
+            playerName: 'Briv',
+            amount: 5,
+        });
         expect(response.status).toBe(200);
         expect(response.body.tempHp).toBe(5);
         expect(mockPlayer.save).toHaveBeenCalled();
@@ -32,23 +30,19 @@ describe('addTempHp', () => {
 
     it('should return 404 if player not found', async () => {
         (Player.findOne as jest.Mock).mockResolvedValue(null);
-        const response = await request(app)
-            .post('/tempHp')
-            .send({
-                playerName: 'Unknown',
-                amount: 5,
-            });
+        const response = await request(app).post('/addTempHp').send({
+            playerName: 'Unknown',
+            amount: 5,
+        });
         expect(response.status).toBe(404);
-        expect(response.body.message).toBe('Player not found');
+        expect(response.text).toBe('Player not found');
     });
 
     it('should return 400 for invalid temp HP amount', async () => {
-        const response = await request(app)
-            .post('/tempHp')
-            .send({
-                playerName: 'Briv',
-                amount: -5,
-            });
+        const response = await request(app).post('/addTempHp').send({
+            playerName: 'Briv',
+            amount: -5,
+        });
         expect(response.status).toBe(400);
     });
 
@@ -61,12 +55,10 @@ describe('addTempHp', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app)
-            .post('/tempHp')
-            .send({
-                playerName: 'Briv',
-                amount: 5,
-            });
+        const response = await request(app).post('/addTempHp').send({
+            playerName: 'Briv',
+            amount: 5,
+        });
         expect(response.status).toBe(200);
         expect(response.body.tempHp).toBe(5); // tempHp should be updated
         expect(mockPlayer.currentHp).toBe(15); // currentHp should remain unchanged
@@ -82,12 +74,10 @@ describe('addTempHp', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app)
-            .post('/tempHp')
-            .send({
-                playerName: 'Briv',
-                amount: 5,
-            });
+        const response = await request(app).post('/addTempHp').send({
+            playerName: 'Briv',
+            amount: 5,
+        });
         expect(response.status).toBe(200);
         expect(response.body.tempHp).toBe(5); // tempHp should remain unchanged
         expect(mockPlayer.save).not.toHaveBeenCalled();

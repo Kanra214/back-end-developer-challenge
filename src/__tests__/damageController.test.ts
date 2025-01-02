@@ -6,7 +6,7 @@ import { DamageType } from '../models/damageType';
 
 const app = express();
 app.use(express.json());
-app.post('/damage', dealDamage);
+app.post('/dealDamage', dealDamage);
 
 jest.mock('../models/player');
 
@@ -20,7 +20,7 @@ describe('dealDamage', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Briv',
             amount: 10,
             damageType: DamageType.Fire,
@@ -33,17 +33,18 @@ describe('dealDamage', () => {
     it('should return 404 if player not found', async () => {
         (Player.findOne as jest.Mock).mockResolvedValue(null);
 
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Unknown',
             amount: 10,
             damageType: DamageType.Fire,
         });
 
         expect(response.status).toBe(404);
+        expect(response.text).toBe('Player not found');
     });
 
     it('should return 400 for invalid damage type', async () => {
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Briv',
             amount: 10,
             damageType: 'InvalidType',
@@ -53,7 +54,7 @@ describe('dealDamage', () => {
     });
 
     it('should return 400 for invalid damage amount', async () => {
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Briv',
             amount: -10,
             damageType: DamageType.Fire,
@@ -72,7 +73,7 @@ describe('dealDamage', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Briv',
             amount: 10,
             damageType: DamageType.Fire,
@@ -92,7 +93,7 @@ describe('dealDamage', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Briv',
             amount: 10,
             damageType: DamageType.Fire,
@@ -111,7 +112,7 @@ describe('dealDamage', () => {
             save: jest.fn().mockResolvedValue(true),
         };
         (Player.findOne as jest.Mock).mockResolvedValue(mockPlayer);
-        const response = await request(app).post('/damage').send({
+        const response = await request(app).post('/dealDamage').send({
             playerName: 'Briv',
             amount: 10,
             damageType: DamageType.Fire,

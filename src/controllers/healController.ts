@@ -1,6 +1,9 @@
-import { Request, Response } from 'express';
-import Player from '../models/player';
-import { BaseRequestBody, validateRequest } from '../shared/validator';
+import { NextFunction, Request, Response } from 'express';
+import { HpModifyInfo, validateRequest } from '../shared/validator';
+import { PlayerHpService } from '../services/playerHpService';
+import { PlayerNotFoundError } from '../shared/playerNotFoundError';
+
+const playerHpService = PlayerHpService.getInstance();
 
 /**
  * @swagger
@@ -43,23 +46,26 @@ import { BaseRequestBody, validateRequest } from '../shared/validator';
  *       404:
  *         description: Player not found
  */
-export const heal = async (req: Request, res: Response) => {
-    const healInfo = new BaseRequestBody();
+export const heal = async (req: Request, res: Response, next: NextFunction) => {
+    const healInfo = new HpModifyInfo();
     healInfo.playerName = req.body.playerName;
     healInfo.amount = req.body.amount;
-    if (!(await validateRequest(res, healInfo))) {
+    const errors = await validateRequest(healInfo);
+    if (errors) {
+        res.status(400).json({
+            message: 'Invalid request body.',
+            Errors: errors,
+        });
         return;
     }
-
-    const player = await Player.findOne({ name: healInfo.playerName });
-    if (player) {
-        player.currentHp = Math.min(
-            player.currentHp + healInfo.amount,
-            player.hitPoints
-        );
-        await player.save();
-        res.json({ currentHp: player.currentHp });
-    } else {
-        res.status(404).json({ message: 'Player not found' });
+    try {
+        const result = await playerHpService.healPlayer(healInfo);
+        res.status(200).json(result);
+    } catch (error) {
+        if (error instanceof PlayerNotFoundError) {
+            res.status(404).send(error.message);
+            return;
+        }
+        next(error);
     }
 };
