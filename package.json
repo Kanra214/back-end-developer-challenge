@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DnDBeyond/back-end-developer-challenge.git"
+    "url": "git+https://github.com/Kanra214/back-end-developer-challenge.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/DnDBeyond/back-end-developer-challenge/issues"
+    "url": "https://github.com/Kanra214/back-end-developer-challenge/issues"
   },
-  "homepage": "https://github.com/DnDBeyond/back-end-developer-challenge#readme",
+  "homepage": "https://github.com/Kanra214/back-end-developer-challenge#readme",
   "dependencies": {
     "class-validator": "^0.14.1",
     "express": "^4.21.2",
