@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { connect } from './db';
 import { setupSwagger } from './swagger';
 import { dealDamage } from './controllers/damageController';
@@ -22,7 +22,6 @@ connect()
         app.post('/dealDamage', dealDamage);
         app.post('/heal', heal);
         app.post('/addTempHp', addTempHp);
-        app.use(errorHandler);
         app.listen(port, () => {
             console.log(`Server running at http://localhost:${port}`);
         });
@@ -30,13 +29,3 @@ connect()
     .catch((err) => {
         console.error('Failed to connect to the database', err);
     });
-
-const errorHandler = (
-    err: any,
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    console.error(err.stack);
-    res.status(500).send('Internal Server Error');
-};
