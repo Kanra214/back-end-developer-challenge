@@ -19,7 +19,7 @@ export const connect = async () => {
             },
         });
         uri = mongoServer.getUri();
-        dataPath = '../data'
+        dataPath = '../data';
     }
     if (!uri) {
         throw new Error('Failed to get MongoDB URI');
@@ -36,7 +36,7 @@ const loadInitialData = async (dataPath: string) => {
         const filePath = path.join(dataDir, file);
         const data = fs.readFileSync(filePath, 'utf-8');
         const playerData = JSON.parse(data);
-        playerData.id = filePath; // Add file path to player data
+        playerData._id = filePath; // Add file path to player data
         await Player.create(playerData);
     }
 };

@@ -1,0 +1,15 @@
+export enum DamageType {
+    Bludgeoning = 'BLUDGEONING',
+    Piercing = 'PIERCING',
+    Slashing = 'SLASHING',
+    Fire = 'FIRE',
+    Cold = 'COLD',
+    Acid = 'ACID',
+    Thunder = 'THUNDER',
+    Lightning = 'LIGHTNING',
+    Poison = 'POISON',
+    Radiant = 'RADIANT',
+    Necrotic = 'NECROTIC',
+    Psychic = 'PSYCHIC',
+    Force = 'FORCE',
+}

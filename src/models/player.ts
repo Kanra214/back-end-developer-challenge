@@ -1,10 +1,13 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { DamageType } from './damageType';
 
-interface IPlayer extends Document {
-    id: string;
+export interface IPlayer {
+    _id: string;
     name: string;
     level: number;
     hitPoints: number;
+    currentHp: number;
+    tempHp: number;
     classes: Array<{
         name: string;
         hitDiceValue: number;
@@ -27,16 +30,23 @@ interface IPlayer extends Document {
         };
     }>;
     defenses: Array<{
-        type: string;
-        defense: string;
+        type: DamageType;
+        defense: 'resistance' | 'immunity';
     }>;
 }
 
-const PlayerSchema: Schema = new Schema({
-    id: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
+const PlayerSchema: Schema = new Schema<IPlayer>({
+    _id: { type: String },
+    name: { type: String, required: true, unique: true },
     level: { type: Number, required: true },
     hitPoints: { type: Number, required: true },
+    currentHp: {
+        type: Number,
+        default: function () {
+            return this.hitPoints;
+        },
+    },
+    tempHp: { type: Number, default: 0 },
     classes: [
         {
             name: { type: String, required: true },
@@ -64,7 +74,12 @@ const PlayerSchema: Schema = new Schema({
     ],
     defenses: [
         {
-            type: { type: String, required: true },
+            type: {
+                type: String,
+                required: true,
+                enum: Object.values(DamageType),
+                uppercase: true,
+            },
             defense: { type: String, required: true },
         },
     ],
